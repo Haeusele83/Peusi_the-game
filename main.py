@@ -3,33 +3,41 @@ import time
 import sys
 import random
 
-# Pygame initialisieren
 pygame.init()
 
-# Fenstergröße
+# Fenstergrösse
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("CyberHeist - Hacker Terminal")
 
-# Farben
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 
-# Schriftart
+#Schriftart
 font = pygame.font.SysFont("Arial", 24)
 
-# Terminal-Text speichern
 terminal_lines = []
 user_input = ""
 
-# Simulierter Hacker-Log
+# Globale Variablen für den Spielstatus
+in_riddle = False
+current_answer = ""
+cursor_visible = True
+cursor_timer = pygame.time.get_ticks()
+cursor_blink_speed = 500
+
+time_limit = 300             # 5 Minuten in Sekunden
+level_start_time = None      # Startzeit des aktuellen Levels
+waiting_for_next_level = False
+
+# Hacker-Logs
 hacker_logs = [
     "[BOOT] System wird gestartet...",
-    "[INFO] Verbindung zum sicheren Server wird hergestellt...",
+    "[INFO] Verbindung zum Server wird hergestellt...",
     "[WARNUNG] Firewall erkannt! Versuche, die Sperre zu umgehen...",
     "[ERFOLG] Zugriff gewährt. Willkommen, Agent.",
-    "[EINGABE] Gib 'start' ein, um die erste Herausforderung zu starten:",
+    "[MISSION INFO] Bereite dich auf herausfordernde Missionen vor. Tippe 'start', um zu beginnen.",
     ""
 ]
 
@@ -44,23 +52,14 @@ def draw_terminal():
     screen.blit(input_surface, (10, HEIGHT - 20))
     pygame.display.flip()
 
-def type_text(text, delay=0.05):
-    for char in text:
-        terminal_lines.append(char)
-        draw_terminal()
-        time.sleep(delay)
-    terminal_lines.append("")
-
 def run_game():
     global user_input
     running = True
-    text_index = 0
     clock = pygame.time.Clock()
     
-    while text_index < len(hacker_logs):
-        terminal_lines.append(hacker_logs[text_index])
+    for log in hacker_logs:
+        terminal_lines.append(log)
         draw_terminal()
-        text_index += 1
         time.sleep(1)
     
     while running:

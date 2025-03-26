@@ -10,9 +10,6 @@ Cyberheist ist ein kleines Python-Projekt, das einen nostalgischen Hacker-Termin
 - **Interaktive Eingabe:**  
   Benutzer können Befehle eingeben, die simuliert ausgeführt werden – so entsteht der Eindruck eines echten Terminals.
 
-- **Retro-Design:**  
-  Durch die Verwendung einer Monospace-Schriftart und eines minimalistischen Layouts erinnert das Programm an klassische Terminal-Anwendungen.
-
 - **Einfache Erweiterbarkeit:**  
   Der Code ist so strukturiert, dass er leicht angepasst und erweitert werden kann.
 

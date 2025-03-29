@@ -41,4 +41,4 @@ Cyberheist ist ein kleines Python-Projekt, das einen nostalgischen Hacker-Termin
 4. **Programm starten:**  
    Führe die Haupt-Python-Datei aus (z. B. main.py):
    ```bash
-   python main.py
+   py main.py

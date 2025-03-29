@@ -27,14 +27,15 @@ cursor_blink_speed = 500
 time_limit = 300  # 5 Minuten pro Level
 level_start_time = None
 waiting_for_next_level = False
+riddle_start_time = None  # Zeitpunkt des aktuellen Rätsels
 
 hacker_logs = [
     "[BOOT] System wird gestartet...",
-    "[INFO] Verbindung zum Server wird herstellen...",
-    "[WARNUNG] Firewall erkannt! Versuche, die Sperre zu umgehen...",
+    "[INFO] Verbindung zum Server wird hergestellt...",
+    "[WARNUNG] Firewall erkannt! Starte Protokoll...",
     "[ERFOLG] Zugriff gewährt. Willkommen, Agent.",
-    "[MISSION INFO] Achtung: Jede Mission ist zeitkritisch! Du hast pro Level maximal 5 Minuten.",
-    "[MISSION TASK] Freu dich auf Aufgaben in den Bereichen Mathe, Logik, Wort-Hacks, Zahlenfolgen und mehr.",
+    "[MISSION INFO] Jede Mission ist zeitkritisch! Du hast pro Level maximal 5 Minuten.",
+    "[MISSION TASK] Aufgaben: Arithmetik, Binär, Wortspiel, Logik, Zahlenfolge, Rätsel.",
     "[READY] Dein Verstand ist gefragt. Bist du bereit, in die Tiefen des CyberHeists einzutauchen?",
     "[EINGABE] Tippe 'start', um das Spiel zu beginnen.",
     ""
@@ -57,154 +58,109 @@ class Player:
 
 class Riddle:
     all_tasks = {
-        "bypass": {
+        "arithmetik": {
             1: [
-                {"question": "Löse die Gleichung: 5 + 3 = ?", "answer": "8"},
-                {"question": "Löse die Gleichung: 7 - 2 = ?", "answer": "5"},
-                {"question": "Löse die Gleichung: 6 + 2 = ?", "answer": "8"},
-                {"question": "Löse die Gleichung: 9 - 3 = ?", "answer": "6"},
-                {"question": "Löse die Gleichung: 3 + 4 = ?", "answer": "7"},
-                {"question": "Löse die Gleichung: 8 - 5 = ?", "answer": "3"},
-                {"question": "Löse die Gleichung: 10 - 6 = ?", "answer": "4"},
-                {"question": "Löse die Gleichung: 2 + 5 = ?", "answer": "7"},
-                {"question": "Löse die Gleichung: 4 + 3 = ?", "answer": "7"},
-                {"question": "Löse die Gleichung: 6 - 1 = ?", "answer": "5"}
-            ],
-            2: [
-                {"question": "Was ist die Binärdarstellung von 5?", "answer": "101"},
-                {"question": "Was ist die Binärdarstellung von 7?", "answer": "111"},
-                {"question": "Was ist die Binärdarstellung von 10?", "answer": "1010"},
-                {"question": "Was ist die Binärdarstellung von 12?", "answer": "1100"},
-                {"question": "Was ist die Binärdarstellung von 8?", "answer": "1000"},
-                {"question": "Was ist die Binärdarstellung von 15?", "answer": "1111"},
-                {"question": "Was ist die Binärdarstellung von 3?", "answer": "11"},
-                {"question": "Was ist die Binärdarstellung von 6?", "answer": "110"},
-                {"question": "Was ist die Binärdarstellung von 14?", "answer": "1110"},
-                {"question": "Was ist die Binärdarstellung von 9?", "answer": "1001"}
-            ],
-            3: [
-                {"question": "Löse die Gleichung: 15 + 27 = ?", "answer": "42"},
-                {"question": "Löse die Gleichung: 20 - 8 = ?", "answer": "12"}
-            ]
-        },
-        "wordhack": {
-            1: [
-                {"word": "CYBER"},
-                {"word": "HACKER"},
-                {"word": "FIREWALL"},
-                {"word": "SECURITY"},
-                {"word": "ENCRYPT"},
-                {"word": "NETWORK"},
-                {"word": "PROXY"},
-                {"word": "VIRUS"},
-                {"word": "SPAM"},
-                {"word": "DATA"}
-            ],
-            2: [
-                {"word": "MALWARE"},
-                {"word": "PHISHING"},
-                {"word": "INTRUSION"},
-                {"word": "AUTHENTICATION"},
-                {"word": "ENCRYPTION"},
-                {"word": "BACKDOOR"},
-                {"word": "INSECURITY"},
-                {"word": "EXPLOIT"},
-                {"word": "BOTNET"},
-                {"word": "OBFUSCATE"}
-            ],
-            3: [
-                {"word": "CRYPTANALYSIS"},
-                {"word": "BACKDOORACCESS"}
-            ]
-        },
-        "math": {
-            1: [
-                {"question": "Berechne: 5 + 3 = ?", "answer": "8"},
-                {"question": "Berechne: 4 + 4 = ?", "answer": "8"},
-                {"question": "Berechne: 7 + 2 = ?", "answer": "9"},
-                {"question": "Berechne: 6 + 1 = ?", "answer": "7"},
-                {"question": "Berechne: 3 + 5 = ?", "answer": "8"},
-                {"question": "Berechne: 2 + 6 = ?", "answer": "8"},
-                {"question": "Berechne: 4 + 3 = ?", "answer": "7"},
-                {"question": "Berechne: 8 + 1 = ?", "answer": "9"},
-                {"question": "Berechne: 5 + 4 = ?", "answer": "9"},
-                {"question": "Berechne: 3 + 3 = ?", "answer": "6"}
+                {"question": "Berechne: 3 + 4 = ?", "answer": "7"},
+                {"question": "Berechne: 8 - 5 = ?", "answer": "3"},
+                {"question": "Berechne: 6 + 2 = ?", "answer": "8"},
+                {"question": "Berechne: 9 - 3 = ?", "answer": "6"},
+                {"question": "Berechne: 4 + 3 = ?", "answer": "7"}
             ],
             2: [
                 {"question": "Berechne: 12 + 15 = ?", "answer": "27"},
-                {"question": "Berechne: 14 + 18 = ?", "answer": "32"},
-                {"question": "Berechne: 17 + 9 = ?", "answer": "26"},
-                {"question": "Berechne: 23 + 7 = ?", "answer": "30"},
-                {"question": "Berechne: 19 + 12 = ?", "answer": "31"},
-                {"question": "Berechne: 15 + 16 = ?", "answer": "31"},
-                {"question": "Berechne: 22 + 8 = ?", "answer": "30"},
-                {"question": "Berechne: 18 + 14 = ?", "answer": "32"},
-                {"question": "Berechne: 20 + 11 = ?", "answer": "31"},
-                {"question": "Berechne: 13 + 17 = ?", "answer": "30"}
+                {"question": "Berechne: 20 - 8 = ?", "answer": "12"},
+                {"question": "Berechne: 7 * 3 = ?", "answer": "21"},
+                {"question": "Berechne: 18 / 2 = ?", "answer": "9"},
+                {"question": "Berechne: 14 + 6 = ?", "answer": "20"}
             ],
             3: [
-                {"question": "Berechne: 17 * 3 = ?", "answer": "51"},
-                {"question": "Berechne: 45 - 19 = ?", "answer": "26"}
+                {"question": "Berechne: 15 * 4 = ?", "answer": "60"},
+                {"question": "Berechne: 45 / 5 = ?", "answer": "9"},
+                {"question": "Berechne: 23 + 37 = ?", "answer": "60"},
+                {"question": "Berechne: 50 - 17 = ?", "answer": "33"}
             ]
         },
-        "logic": {
+        "binär": {
             1: [
-                {"question": "Welche Aussage ist wahr?\n  A) 2 + 2 = 5\n  B) Die Erde ist flach\n  C) 2 + 2 = 4", "answer": "C"},
-                {"question": "Welche Aussage ist korrekt?\n  A) Wasser ist trocken\n  B) Feuer ist heiß\n  C) Schnee ist schwarz", "answer": "B"},
-                {"question": "Welche Aussage ist falsch?\n  A) Der Himmel ist blau\n  B) Gras ist grün\n  C) Feuer ist kalt", "answer": "C"},
-                {"question": "Welche Aussage ist richtig?\n  A) Die Sonne geht im Westen auf\n  B) Der Mond ist aus Käse\n  C) Die Erde dreht sich um die Sonne", "answer": "C"},
-                {"question": "Welche Aussage ist wahr?\n  A) Katzen können fliegen\n  B) Hunde bellen\n  C) Fische laufen", "answer": "B"},
-                {"question": "Welche Aussage ist korrekt?\n  A) Bäume produzieren Sauerstoff\n  B) Autos wachsen\n  C) Steine schwimmen", "answer": "A"},
-                {"question": "Welche Aussage ist falsch?\n  A) Wasser gefriert bei 0°C\n  B) Salz schmilzt bei -20°C\n  C) Eis schmilzt bei 0°C", "answer": "B"},
-                {"question": "Welche Aussage ist richtig?\n  A) Schokolade ist gesund (in Maßen)\n  B) Zucker ist unschädlich in großen Mengen\n  C) Salz ist immer gesund", "answer": "A"},
-                {"question": "Welche Aussage ist wahr?\n  A) Vögel können fliegen\n  B) Fische können fliegen\n  C) Elefanten können fliegen", "answer": "A"},
-                {"question": "Welche Aussage ist korrekt?\n  A) Feuer ist kalt\n  B) Eis ist warm\n  C) Wasser ist flüssig", "answer": "C"}
+                {"question": "Was ist die Binärdarstellung von 2?", "answer": "10"},
+                {"question": "Was ist die Binärdarstellung von 3?", "answer": "11"},
+                {"question": "Was ist die Binärdarstellung von 4?", "answer": "100"},
+                {"question": "Was ist die Binärdarstellung von 5?", "answer": "101"},
+                {"question": "Was ist die Binärdarstellung von 6?", "answer": "110"}
             ],
             2: [
-                {"question": "Welche Aussage ist wahr?\n  A) Ein Quadrat hat 3 Ecken\n  B) Ein Kreis hat keinen Anfang\n  C) Ein Dreieck hat 4 Seiten", "answer": "B"},
-                {"question": "Welche Aussage ist korrekt?\n  A) Ein Jahr hat 365 Tage\n  B) Ein Monat hat immer 31 Tage\n  C) Eine Woche hat 8 Tage", "answer": "A"},
-                {"question": "Welche Aussage ist richtig?\n  A) Wasser siedet bei 100°C\n  B) Eisen schmilzt bei 50°C\n  C) Quecksilber gefriert bei 100°C", "answer": "A"},
-                {"question": "Welche Aussage ist falsch?\n  A) Der menschliche Körper besteht zu ca. 60% aus Wasser\n  B) Der Mensch hat 4 Lungen\n  C) Das Herz pumpt Blut", "answer": "B"},
-                {"question": "Welche Aussage ist korrekt?\n  A) Die Erde ist eine Scheibe\n  B) Die Erde ist rund\n  C) Die Erde ist dreieckig", "answer": "B"},
-                {"question": "Welche Aussage ist wahr?\n  A) Lichtgeschwindigkeit ist die höchste Geschwindigkeit\n  B) Schallgeschwindigkeit ist schneller als Licht\n  C) Zeitreisen sind alltäglich", "answer": "A"},
-                {"question": "Welche Aussage ist richtig?\n  A) Elektrizität fließt\n  B) Elektrizität steht still\n  C) Elektrizität ist ein Mythos", "answer": "A"},
-                {"question": "Welche Aussage ist falsch?\n  A) Der Mensch atmet Sauerstoff\n  B) Der Mensch kann ohne Sauerstoff leben\n  C) Der Mensch benötigt Wasser", "answer": "B"},
-                {"question": "Welche Aussage ist korrekt?\n  A) Ein Jahr hat vier Jahreszeiten\n  B) Ein Jahr hat fünf Jahreszeiten\n  C) Ein Jahr hat zwei Jahreszeiten", "answer": "A"},
-                {"question": "Welche Aussage ist richtig?\n  A) Schokolade ist immer bitter\n  B) Kaffee kann süß sein\n  C) Tee schmeckt nach Schokolade", "answer": "B"}
+                {"question": "Was ist die Binärdarstellung von 10?", "answer": "1010"},
+                {"question": "Was ist die Binärdarstellung von 12?", "answer": "1100"},
+                {"question": "Was ist die Binärdarstellung von 14?", "answer": "1110"},
+                {"question": "Was ist die Binärdarstellung von 15?", "answer": "1111"},
+                {"question": "Was ist die Binärdarstellung von 9?", "answer": "1001"}
             ],
             3: [
-                {"question": "Welche Aussage ist korrekt?\n  A) Alle Vögel können fliegen\n  B) Pinguine können nicht fliegen\n  C) Fische haben Flügel", "answer": "B"},
-                {"question": "Welche Aussage ist wahr?\n  A) Wasser ist spröde\n  B) Stahl ist flexibel\n  C) Gummi ist elastisch", "answer": "C"}
+                {"question": "Was ist die Binärdarstellung von 23?", "answer": "10111"},
+                {"question": "Was ist die Binärdarstellung von 27?", "answer": "11011"},
+                {"question": "Was ist die Binärdarstellung von 31?", "answer": "11111"}
             ]
         },
-        "sequence": {
+        "wortspiel": {
+            1: [
+                {"word": "CODE"},
+                {"word": "HACK"},
+                {"word": "NETZ"},
+                {"word": "LOGIK"},
+                {"word": "SPIEL"}
+            ],
+            2: [
+                {"word": "PROGRAMM"},
+                {"word": "TECHNIK"},
+                {"word": "ALGORITHMUS"},
+                {"word": "VIRUS"},
+                {"word": "SYSTEM"}
+            ],
+            3: [
+                {"word": "INNOVATION"},
+                {"word": "DIGITALISIERUNG"},
+                {"word": "CYBERSECURITY"}
+            ]
+        },
+        "logik": {
+            1: [
+                {"question": "Welche Aussage ist korrekt?\n  A) Wasser ist trocken\n  B) Feuer ist heiß\n  C) Schnee ist schwarz", "answer": "B"},
+                {"question": "Welche Aussage ist wahr?\n  A) 2 + 2 = 5\n  B) 2 + 2 = 4\n  C) 2 + 2 = 3", "answer": "B"}
+            ],
+            2: [
+                {"question": "Welche Aussage ist richtig?\n  A) Die Erde ist rund\n  B) Die Erde ist flach\n  C) Die Erde ist eckig", "answer": "A"},
+                {"question": "Welche Aussage ist korrekt?\n  A) Feuer ist kalt\n  B) Eis ist heiß\n  C) Wasser ist flüssig", "answer": "C"}
+            ],
+            3: [
+                {"question": "Welche Aussage ist korrekt?\n  A) Alle Vögel können fliegen\n  B) Pinguine können nicht fliegen\n  C) Fische können fliegen", "answer": "B"},
+                {"question": "Welche Aussage ist wahr?\n  A) Bäume produzieren Sauerstoff\n  B) Autos produzieren Sauerstoff\n  C) Steine produzieren Sauerstoff", "answer": "A"}
+            ]
+        },
+        "zahlenfolge": {
             1: [
                 {"question": "Welche Zahl folgt in der Reihe: 1, 2, 3, 4, ?", "answer": "5"},
-                {"question": "Welche Zahl folgt in der Reihe: 2, 4, 6, 8, ?", "answer": "10"},
-                {"question": "Welche Zahl folgt in der Reihe: 3, 6, 9, 12, ?", "answer": "15"},
-                {"question": "Welche Zahl folgt in der Reihe: 5, 10, 15, 20, ?", "answer": "25"},
-                {"question": "Welche Zahl folgt in der Reihe: 10, 20, 30, 40, ?", "answer": "50"},
-                {"question": "Welche Zahl folgt in der Reihe: 0, 1, 1, 2, ?", "answer": "3"},
-                {"question": "Welche Zahl folgt in der Reihe: 2, 3, 5, 7, ?", "answer": "11"},
-                {"question": "Welche Zahl folgt in der Reihe: 1, 1, 2, 3, ?", "answer": "5"},
-                {"question": "Welche Zahl folgt in der Reihe: 4, 8, 12, 16, ?", "answer": "20"},
-                {"question": "Welche Zahl folgt in der Reihe: 9, 8, 7, 6, ?", "answer": "5"}
+                {"question": "Welche Zahl folgt in der Reihe: 2, 4, 6, 8, ?", "answer": "10"}
             ],
             2: [
-                {"question": "Welche Zahl folgt in der Reihe: 2, 3, 5, 8, 13, ?", "answer": "21"},
-                {"question": "Welche Zahl folgt in der Reihe: 1, 4, 9, 16, ?", "answer": "25"},
-                {"question": "Welche Zahl folgt in der Reihe: 2, 4, 8, 16, ?", "answer": "32"},
-                {"question": "Welche Zahl folgt in der Reihe: 3, 6, 12, 24, ?", "answer": "48"},
-                {"question": "Welche Zahl folgt in der Reihe: 5, 10, 20, 40, ?", "answer": "80"},
-                {"question": "Welche Zahl folgt in der Reihe: 13, 10, 7, 4, ?", "answer": "1"},
-                {"question": "Welche Zahl folgt in der Reihe: 0, 2, 6, 12, ?", "answer": "20"},
-                {"question": "Welche Zahl folgt in der Reihe: 1, 2, 4, 7, 11, ?", "answer": "16"},
-                {"question": "Welche Zahl folgt in der Reihe: 2, 5, 10, 17, ?", "answer": "26"},
-                {"question": "Welche Zahl folgt in der Reihe: 1, 3, 6, 10, ?", "answer": "15"}
+                {"question": "Welche Zahl folgt in der Reihe: 3, 6, 9, 12, ?", "answer": "15"},
+                {"question": "Welche Zahl folgt in der Reihe: 5, 10, 15, 20, ?", "answer": "25"}
             ],
             3: [
-                {"question": "Welche Zahl folgt in der Reihe: 3, 5, 8, 13, ?", "answer": "21"},
-                {"question": "Welche Zahl folgt in der Reihe: 1, 4, 9, 16, 25, ?", "answer": "36"}
+                {"question": "Welche Zahl folgt in der Reihe: 8, 13, 18, 23, ?", "answer": "28"},
+                {"question": "Welche Zahl folgt in der Reihe: 2, 3, 5, 8, ?", "answer": "13"}
+            ]
+        },
+        "rätsel": {
+            1: [
+                {"question": "Was hat einen Kopf, aber keinen Körper?", "answer": "Münze"},
+                {"question": "Was wird nass, je mehr es trocknet?", "answer": "Handtuch"}
+            ],
+            2: [
+                {"question": "Ich bin immer hungrig, muss ständig essen, doch wenn ich trinke, sterbe ich. Was bin ich?", "answer": "Feuer"},
+                {"question": "Ich spreche ohne Mund und höre ohne Ohren. Was bin ich?", "answer": "Echo"}
+            ],
+            3: [
+                {"question": "Ich kann fliegen ohne Flügel und weinen ohne Augen. Was bin ich?", "answer": "Wolke"}
             ]
         }
     }
@@ -213,7 +169,6 @@ class Riddle:
     @staticmethod
     def init_tasks_for_level(level):
         Riddle.available_tasks = {}
-        # Erweiterung: Zusätzliche Schwierigkeitsstufen (Level 1, 2, 3 – ab höheren Levels wird Level 3 genutzt)
         level_key = level if level in [1, 2, 3] else 3
         for typ in Riddle.all_tasks:
             Riddle.available_tasks[typ] = list(Riddle.all_tasks[typ][level_key])
@@ -230,21 +185,18 @@ class Riddle:
         typ = random.choice(available_types)
         task = random.choice(Riddle.available_tasks[typ])
         Riddle.available_tasks[typ].remove(task)
-        if typ in ["bypass", "math", "sequence"]:
-            current_answer = task["answer"]
-            return [task["question"]]
-        elif typ == "wordhack":
+        if typ in ["arithmetik", "binär", "zahlenfolge", "logik", "rätsel"]:
+            current_answer = task["answer"].upper().strip()
+            return task["question"].split("\n")
+        elif typ == "wortspiel":
             word = task["word"]
             scrambled = "".join(random.sample(word, len(word)))
-            current_answer = word
+            current_answer = word.upper().strip()
             return ["Entschlüssele das Wort:", "", "  " + scrambled]
-        elif typ == "logic":
-            current_answer = task["answer"]
-            return task["question"].split("\n")
         else:
             current_answer = ""
             return ["Kein Rätsel verfügbar."]
-
+            
 player = Player()
 
 def draw_terminal():
@@ -288,7 +240,7 @@ def start_game():
     global in_riddle, level_start_time, waiting_for_next_level, riddle_start_time
     terminal_lines.append("")
     terminal_lines.append("-----------------------------")
-    terminal_lines.append(f"[MISSION] 5 Rätsel für Level {player.level} beginnen jetzt!")
+    terminal_lines.append(f"[MISSION] 6 Rätsel für Level {player.level} beginnen jetzt!")
     terminal_lines.append("-----------------------------")
     terminal_lines.append("")
     in_riddle = True
@@ -299,11 +251,11 @@ def start_game():
 
 def ask_next_riddle():
     global in_riddle, waiting_for_next_level, riddle_start_time
-    if player.solved_riddles >= 5:
+    riddle_start_time = time.time()  # Startzeit des aktuellen Rätsels
+    if player.solved_riddles >= 6:
         show_level_summary()
     else:
         terminal_lines.append("")
-        riddle_start_time = time.time()  # Startzeit des aktuellen Rätsels
         riddle_lines = Riddle.generate_riddle(player.level)
         terminal_lines.append("[RÄTSEL]")
         for line in riddle_lines:
@@ -327,7 +279,7 @@ def show_level_summary():
         terminal_lines.append(f"Möchtest du mit Level {player.level + 1} starten? (Tippe 'start')")
     else:
         terminal_lines.append("*****************************")
-        terminal_lines.append(f"[MISSION ABGESCHLOSSEN] Du hast alle 5 Level erfolgreich abgeschlossen!")
+        terminal_lines.append(f"[MISSION ABGESCHLOSSEN] Du hast alle Level erfolgreich abgeschlossen!")
         terminal_lines.append(f"Gesamte Punkte: {player.points}")
         terminal_lines.append("*****************************")
         terminal_lines.append("")
@@ -344,7 +296,7 @@ def run_game():
 
     # Hacker-Logs initial anzeigen
     for log in hacker_logs:
-        terminal_lines.append(log)  
+        terminal_lines.append(log)
         draw_terminal()
         time.sleep(1)
 
@@ -392,10 +344,10 @@ def run_game():
                             start_game()
                         elif in_riddle:
                             answer_time = time.time() - riddle_start_time
-                            if user_input.upper() == current_answer:
+                            if user_input.upper().strip() == current_answer:
                                 terminal_lines.append("")
                                 terminal_lines.append("✅ [ERFOLG] Richtige Antwort! Rätsel gelöst.")
-                                # Bonus für schnelle Lösungen (Beispiel: Bonus, wenn in weniger als 10 Sekunden gelöst)
+                                # Bonus für schnelle Lösungen: wenn in weniger als 10 Sekunden gelöst, gibt es Punktebonus
                                 if answer_time < 10:
                                     bonus = 10 - int(answer_time)
                                     player.points += bonus
@@ -424,4 +376,3 @@ def run_game():
     sys.exit()
 
 run_game()
-

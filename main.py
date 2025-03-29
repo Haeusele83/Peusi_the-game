@@ -1,5 +1,5 @@
 import pygame
-from menu import MainMenu, OptionsScreen, HighscoreScreen, HighscoreEntryScreen
+from menu import MainMenu, OptionsScreen, HighscoreScreen, HighscoreEntryScreen, TestMenu, TestRiddleSummaryScreen, TestConnectionScreen, TestResetDBScreen
 from game import run_game
 
 pygame.init()
@@ -9,13 +9,16 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("CyberHeist - Hacker Terminal")
 
 clock = pygame.time.Clock()
-current_screen = "menu"  # Mögliche Zustände: "menu", "options", "game", "highscore_entry", "highscore"
+current_screen = "menu"  # Zustände: "menu", "options", "game", "highscore_entry", "highscore", "test", "test_riddle_summary", "test_connection", "test_reset_db"
 
-# Initialisiere die Screens
-menu = MainMenu(screen)
+menu = MainMenu(screen, debug=True)
 options_screen = OptionsScreen(screen)
 highscore_screen = None
 highscore_entry_screen = None
+test_menu = None
+test_riddle_summary_screen = None
+test_connection_screen = None
+test_reset_db_screen = None
 
 running = True
 while running:
@@ -34,6 +37,9 @@ while running:
         elif action == "highscores":
             current_screen = "highscore"
             highscore_screen = HighscoreScreen(screen)
+        elif action == "test_modus":
+            current_screen = "test"
+            test_menu = TestMenu(screen)
         elif action == "quit":
             running = False
 
@@ -44,9 +50,7 @@ while running:
             current_screen = "menu"
 
     elif current_screen == "game":
-        # run_game() blockiert bis Spielende und gibt dann die erreichten Punkte zurück.
         score = run_game()
-        # Immer in den Highscore-Eingabe-Screen wechseln, damit jeder Spieler seinen Score abspeichern kann.
         current_screen = "highscore_entry"
         highscore_entry_screen = HighscoreEntryScreen(screen, score)
 
@@ -54,7 +58,6 @@ while running:
         name = highscore_entry_screen.update(events)
         highscore_entry_screen.draw()
         if name is not None and name != "":
-            # Score in der Datenbank speichern.
             from highscores import update_highscores
             update_highscores(name, highscore_entry_screen.score)
             current_screen = "highscore"
@@ -66,6 +69,46 @@ while running:
         if action == "back":
             current_screen = "menu"
 
+    elif current_screen == "test":
+        action = test_menu.update(events)
+        test_menu.draw()
+        if action == "test_highscore":
+            current_screen = "highscore_entry"
+            highscore_entry_screen = HighscoreEntryScreen(screen, 999)
+        elif action == "test_riddle_summary":
+            current_screen = "test_riddle_summary"
+            test_riddle_summary_screen = TestRiddleSummaryScreen(screen)
+        elif action == "test_connection":
+            current_screen = "test_connection"
+            test_connection_screen = TestConnectionScreen(screen)
+        elif action == "test_reset_db":
+            current_screen = "test_reset_db"
+            test_reset_db_screen = TestResetDBScreen(screen)
+        elif action == "back":
+            current_screen = "menu"
+
+    elif current_screen == "test_riddle_summary":
+        action = test_riddle_summary_screen.update(events)
+        test_riddle_summary_screen.draw()
+        if action == "back":
+            current_screen = "test"
+
+    elif current_screen == "test_connection":
+        action = test_connection_screen.update(events)
+        test_connection_screen.draw()
+        if action == "back":
+            current_screen = "test"
+
+    elif current_screen == "test_reset_db":
+        action = test_reset_db_screen.update(events)
+        test_reset_db_screen.draw()
+        if action == "back":
+            current_screen = "test"
+
     clock.tick(30)
 
 pygame.quit()
+
+
+
+

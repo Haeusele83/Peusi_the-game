@@ -1,11 +1,15 @@
 import pygame
-from highscores import load_highscores
+from highscores import load_highscores, reset_highscores
+from riddles import Riddle
+import random
 
 class MainMenu:
-    def __init__(self, screen):
+    def __init__(self, screen, debug=False):
         self.screen = screen
         self.font = pygame.font.SysFont("Arial", 36)
         self.options = ["Spiel starten", "Optionen", "Highscores", "Beenden"]
+        if debug:
+            self.options.append("Testmodus")
         self.selected = 0
 
     def update(self, events):
@@ -25,6 +29,8 @@ class MainMenu:
                         return "highscores"
                     elif option == "Beenden":
                         return "quit"
+                    elif option == "Testmodus":
+                        return "test_modus"
         return None
 
     def draw(self):
@@ -56,17 +62,10 @@ class OptionsScreen:
                     current_option = self.options[self.selected]
                     if current_option == "Zurück":
                         return "back"
-                    # Toggle-Logik:
                     if current_option.startswith("Sound"):
-                        if "ON" in current_option:
-                            self.options[self.selected] = "Sound: OFF"
-                        else:
-                            self.options[self.selected] = "Sound: ON"
+                        self.options[self.selected] = "Sound: OFF" if "ON" in current_option else "Sound: ON"
                     elif current_option.startswith("Difficulty"):
-                        if "Normal" in current_option:
-                            self.options[self.selected] = "Difficulty: Hard"
-                        else:
-                            self.options[self.selected] = "Difficulty: Normal"
+                        self.options[self.selected] = "Difficulty: Hard" if "Normal" in current_option else "Difficulty: Normal"
         return None
 
     def draw(self):
@@ -150,3 +149,163 @@ class HighscoreEntryScreen:
             cursor_surface = self.font.render("_", True, (255, 255, 255))
             self.screen.blit(cursor_surface, (100 + prompt_surface.get_width(), 200))
         pygame.display.flip()
+
+
+class TestMenu:
+    def __init__(self, screen):
+        self.screen = screen
+        self.font = pygame.font.SysFont("Arial", 36)
+        # Testoptionen: Highscore, Rätseltypen Übersicht, Verbindung und DB zurücksetzen
+        self.options = ["Test Highscore", "Test Rätseltypen", "Test Verbindung", "DB zurücksetzen", "Zurück"]
+        self.selected = 0
+
+    def update(self, events):
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    self.selected = (self.selected - 1) % len(self.options)
+                elif event.key == pygame.K_DOWN:
+                    self.selected = (self.selected + 1) % len(self.options)
+                elif event.key == pygame.K_RETURN:
+                    option = self.options[self.selected]
+                    if option == "Test Highscore":
+                        return "test_highscore"
+                    elif option == "Test Rätseltypen":
+                        return "test_riddle_summary"
+                    elif option == "Test Verbindung":
+                        return "test_connection"
+                    elif option == "DB zurücksetzen":
+                        return "test_reset_db"
+                    elif option == "Zurück":
+                        return "back"
+        return None
+
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+        title_surface = self.font.render("Testmodus", True, (0, 255, 0))
+        self.screen.blit(title_surface, (100, 50))
+        for idx, option in enumerate(self.options):
+            color = (0, 255, 0) if idx == self.selected else (255, 255, 255)
+            option_surface = self.font.render(option, True, color)
+            self.screen.blit(option_surface, (100, 150 + idx * 50))
+        pygame.display.flip()
+
+
+class TestRiddleSummaryScreen:
+    def __init__(self, screen):
+        self.screen = screen
+        self.font = pygame.font.SysFont("Arial", 28)
+        self.title_font = pygame.font.SysFont("Arial", 36)
+        self.summary = self.create_summary()
+
+    def create_summary(self):
+        summary_lines = []
+        for typ, levels in Riddle.all_tasks.items():
+            line = f"{typ.capitalize()}: "
+            counts = []
+            for level in sorted(levels.keys()):
+                count = len(levels[level])
+                counts.append(f"Level {level}: {count}")
+            line += ", ".join(counts)
+            summary_lines.append(line)
+        return summary_lines
+
+    def update(self, events):
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                return "back"
+        return None
+
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+        title_surface = self.title_font.render("Rätseltypen Übersicht", True, (0, 255, 0))
+        self.screen.blit(title_surface, (100, 50))
+        y = 120
+        for line in self.summary:
+            line_surface = self.font.render(line, True, (255, 255, 255))
+            self.screen.blit(line_surface, (100, y))
+            y += 40
+        back_surface = self.font.render("Drücke Enter, um zurückzukehren.", True, (0, 255, 0))
+        self.screen.blit(back_surface, (100, y + 20))
+        pygame.display.flip()
+
+
+class TestConnectionScreen:
+    def __init__(self, screen):
+        self.screen = screen
+        self.font = pygame.font.SysFont("Arial", 28)
+        self.title_font = pygame.font.SysFont("Arial", 36)
+        self.messages = []
+        self.test_connections()
+
+    def test_connections(self):
+        try:
+            import player
+            p = player.Player()
+            self.messages.append("Player Modul: OK")
+        except Exception as e:
+            self.messages.append("Player Modul: Fehler " + str(e))
+        try:
+            from riddles import Riddle
+            Riddle.init_tasks_for_level(1)
+            self.messages.append("Riddles Modul: OK")
+        except Exception as e:
+            self.messages.append("Riddles Modul: Fehler " + str(e))
+        try:
+            hs = load_highscores()
+            self.messages.append("Highscore DB: OK")
+        except Exception as e:
+            self.messages.append("Highscore DB: Fehler " + str(e))
+
+    def update(self, events):
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                return "back"
+        return None
+
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+        title_surface = self.title_font.render("Verbindungstest", True, (0, 255, 0))
+        self.screen.blit(title_surface, (100, 50))
+        y = 120
+        for msg in self.messages:
+            msg_surface = self.font.render(msg, True, (255, 255, 255))
+            self.screen.blit(msg_surface, (100, y))
+            y += 40
+        back_surface = self.font.render("Drücke Enter, um zurückzukehren.", True, (0, 255, 0))
+        self.screen.blit(back_surface, (100, y + 20))
+        pygame.display.flip()
+
+
+class TestResetDBScreen:
+    def __init__(self, screen):
+        self.screen = screen
+        self.font = pygame.font.SysFont("Arial", 28)
+        self.title_font = pygame.font.SysFont("Arial", 36)
+        self.message = ""
+        self.reset_db()
+
+    def reset_db(self):
+        try:
+            reset_highscores()
+            self.message = "Highscore-Datenbank wurde zurückgesetzt."
+        except Exception as e:
+            self.message = "Fehler beim Zurücksetzen: " + str(e)
+
+    def update(self, events):
+        for event in events:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
+                return "back"
+        return None
+
+    def draw(self):
+        self.screen.fill((0, 0, 0))
+        title_surface = self.title_font.render("DB zurücksetzen", True, (0, 255, 0))
+        self.screen.blit(title_surface, (100, 50))
+        msg_surface = self.font.render(self.message, True, (255, 255, 255))
+        self.screen.blit(msg_surface, (100, 150))
+        back_surface = self.font.render("Drücke Enter, um zurückzukehren.", True, (0, 255, 0))
+        self.screen.blit(back_surface, (100, 250))
+        pygame.display.flip()
+
+

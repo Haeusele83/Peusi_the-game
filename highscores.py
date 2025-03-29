@@ -34,5 +34,12 @@ def update_highscores(name, score):
     conn.commit()
     conn.close()
 
-# Initialisiere die Datenbank (Tabelle wird automatisch erstellt, falls sie nicht existiert)
+def reset_highscores():
+    conn = create_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM highscores')
+    conn.commit()
+    conn.close()
+
+# Initialisiere die Datenbank (erstellt die Tabelle, falls sie nicht existiert)
 init_db()

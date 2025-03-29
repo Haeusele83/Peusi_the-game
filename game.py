@@ -136,6 +136,7 @@ def run_game():
     global user_input, in_riddle, current_answer, waiting_for_next_level, level_start_time
     running = True
     clock = pygame.time.Clock()
+    exit_to_menu = False  # Kennzeichnet, ob das Spiel vorzeitig abgebrochen wurde
 
     # Hacker-Logs initial anzeigen
     for log in hacker_logs:
@@ -152,14 +153,23 @@ def run_game():
                 draw_terminal()
                 time.sleep(3)
                 running = False
+                exit_to_menu = True
                 continue
 
         draw_terminal()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+                exit_to_menu = True
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                # ESC: Spiel abbrechen und ins Menü zurückkehren
+                if event.key == pygame.K_ESCAPE:
+                    terminal_lines.append("")
+                    terminal_lines.append("[ABBRUCH] Spiel wird abgebrochen und zum Menü zurückgekehrt.")
+                    running = False
+                    exit_to_menu = True
+                    break
+                elif event.key == pygame.K_RETURN:
                     terminal_lines.append("")
                     terminal_lines.append("> " + user_input)
                     if waiting_for_next_level:
@@ -190,7 +200,6 @@ def run_game():
                             if user_input.upper().strip() == current_answer:
                                 terminal_lines.append("")
                                 terminal_lines.append("✅ [ERFOLG] Richtige Antwort! Rätsel gelöst.")
-                                # Bonus bei schneller Lösung (unter 10 Sekunden)
                                 if answer_time < 10:
                                     bonus = 10 - int(answer_time)
                                     player.points += bonus
@@ -215,5 +224,8 @@ def run_game():
                 else:
                     user_input += event.unicode
         clock.tick(30)
-    pygame.quit()
+    # Pygame nicht beenden – so bleibt die Anwendung aktiv und kehrt ins Menü zurück.
+    if exit_to_menu:
+        return 0
     return player.points
+

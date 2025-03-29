@@ -1,4 +1,3 @@
-# Commit 5: Finale Integration der Spiellogik und Event-Steuerung
 import pygame
 import time
 import sys
@@ -25,7 +24,7 @@ cursor_visible = True
 cursor_timer = pygame.time.get_ticks()
 cursor_blink_speed = 500
 
-time_limit = 300
+time_limit = 300  # 5 Minuten pro Level
 level_start_time = None
 waiting_for_next_level = False
 
@@ -35,7 +34,7 @@ hacker_logs = [
     "[WARNUNG] Firewall erkannt! Versuche, die Sperre zu umgehen...",
     "[ERFOLG] Zugriff gewährt. Willkommen, Agent.",
     "[MISSION INFO] Achtung: Jede Mission ist zeitkritisch! Du hast pro Level maximal 5 Minuten.",
-    "[MISSION TASK] Freu dich auf Aufgaben in den Bereichen Mathe, Logik, Wort-Hacks, Zahlenfolgen und mehr.", 
+    "[MISSION TASK] Freu dich auf Aufgaben in den Bereichen Mathe, Logik, Wort-Hacks, Zahlenfolgen und mehr.",
     "[READY] Dein Verstand ist gefragt. Bist du bereit, in die Tiefen des CyberHeists einzutauchen?",
     "[EINGABE] Tippe 'start', um das Spiel zu beginnen.",
     ""
@@ -82,6 +81,10 @@ class Riddle:
                 {"question": "Was ist die Binärdarstellung von 6?", "answer": "110"},
                 {"question": "Was ist die Binärdarstellung von 14?", "answer": "1110"},
                 {"question": "Was ist die Binärdarstellung von 9?", "answer": "1001"}
+            ],
+            3: [
+                {"question": "Löse die Gleichung: 15 + 27 = ?", "answer": "42"},
+                {"question": "Löse die Gleichung: 20 - 8 = ?", "answer": "12"}
             ]
         },
         "wordhack": {
@@ -108,6 +111,10 @@ class Riddle:
                 {"word": "EXPLOIT"},
                 {"word": "BOTNET"},
                 {"word": "OBFUSCATE"}
+            ],
+            3: [
+                {"word": "CRYPTANALYSIS"},
+                {"word": "BACKDOORACCESS"}
             ]
         },
         "math": {
@@ -134,6 +141,10 @@ class Riddle:
                 {"question": "Berechne: 18 + 14 = ?", "answer": "32"},
                 {"question": "Berechne: 20 + 11 = ?", "answer": "31"},
                 {"question": "Berechne: 13 + 17 = ?", "answer": "30"}
+            ],
+            3: [
+                {"question": "Berechne: 17 * 3 = ?", "answer": "51"},
+                {"question": "Berechne: 45 - 19 = ?", "answer": "26"}
             ]
         },
         "logic": {
@@ -160,6 +171,10 @@ class Riddle:
                 {"question": "Welche Aussage ist falsch?\n  A) Der Mensch atmet Sauerstoff\n  B) Der Mensch kann ohne Sauerstoff leben\n  C) Der Mensch benötigt Wasser", "answer": "B"},
                 {"question": "Welche Aussage ist korrekt?\n  A) Ein Jahr hat vier Jahreszeiten\n  B) Ein Jahr hat fünf Jahreszeiten\n  C) Ein Jahr hat zwei Jahreszeiten", "answer": "A"},
                 {"question": "Welche Aussage ist richtig?\n  A) Schokolade ist immer bitter\n  B) Kaffee kann süß sein\n  C) Tee schmeckt nach Schokolade", "answer": "B"}
+            ],
+            3: [
+                {"question": "Welche Aussage ist korrekt?\n  A) Alle Vögel können fliegen\n  B) Pinguine können nicht fliegen\n  C) Fische haben Flügel", "answer": "B"},
+                {"question": "Welche Aussage ist wahr?\n  A) Wasser ist spröde\n  B) Stahl ist flexibel\n  C) Gummi ist elastisch", "answer": "C"}
             ]
         },
         "sequence": {
@@ -186,6 +201,10 @@ class Riddle:
                 {"question": "Welche Zahl folgt in der Reihe: 1, 2, 4, 7, 11, ?", "answer": "16"},
                 {"question": "Welche Zahl folgt in der Reihe: 2, 5, 10, 17, ?", "answer": "26"},
                 {"question": "Welche Zahl folgt in der Reihe: 1, 3, 6, 10, ?", "answer": "15"}
+            ],
+            3: [
+                {"question": "Welche Zahl folgt in der Reihe: 3, 5, 8, 13, ?", "answer": "21"},
+                {"question": "Welche Zahl folgt in der Reihe: 1, 4, 9, 16, 25, ?", "answer": "36"}
             ]
         }
     }
@@ -194,7 +213,8 @@ class Riddle:
     @staticmethod
     def init_tasks_for_level(level):
         Riddle.available_tasks = {}
-        level_key = level if level in [1, 2] else 2
+        # Erweiterung: Zusätzliche Schwierigkeitsstufen (Level 1, 2, 3 – ab höheren Levels wird Level 3 genutzt)
+        level_key = level if level in [1, 2, 3] else 3
         for typ in Riddle.all_tasks:
             Riddle.available_tasks[typ] = list(Riddle.all_tasks[typ][level_key])
     
@@ -210,7 +230,7 @@ class Riddle:
         typ = random.choice(available_types)
         task = random.choice(Riddle.available_tasks[typ])
         Riddle.available_tasks[typ].remove(task)
-        if typ == "bypass":
+        if typ in ["bypass", "math", "sequence"]:
             current_answer = task["answer"]
             return [task["question"]]
         elif typ == "wordhack":
@@ -218,15 +238,9 @@ class Riddle:
             scrambled = "".join(random.sample(word, len(word)))
             current_answer = word
             return ["Entschlüssele das Wort:", "", "  " + scrambled]
-        elif typ == "math":
-            current_answer = task["answer"]
-            return [task["question"]]
         elif typ == "logic":
             current_answer = task["answer"]
             return task["question"].split("\n")
-        elif typ == "sequence":
-            current_answer = task["answer"]
-            return [task["question"]]
         else:
             current_answer = ""
             return ["Kein Rätsel verfügbar."]
@@ -271,7 +285,7 @@ def draw_terminal():
     pygame.display.flip()
 
 def start_game():
-    global in_riddle, level_start_time, waiting_for_next_level
+    global in_riddle, level_start_time, waiting_for_next_level, riddle_start_time
     terminal_lines.append("")
     terminal_lines.append("-----------------------------")
     terminal_lines.append(f"[MISSION] 5 Rätsel für Level {player.level} beginnen jetzt!")
@@ -284,11 +298,12 @@ def start_game():
     ask_next_riddle()
 
 def ask_next_riddle():
-    global in_riddle, waiting_for_next_level
+    global in_riddle, waiting_for_next_level, riddle_start_time
     if player.solved_riddles >= 5:
         show_level_summary()
     else:
         terminal_lines.append("")
+        riddle_start_time = time.time()  # Startzeit des aktuellen Rätsels
         riddle_lines = Riddle.generate_riddle(player.level)
         terminal_lines.append("[RÄTSEL]")
         for line in riddle_lines:
@@ -318,6 +333,7 @@ def show_level_summary():
         terminal_lines.append("")
         terminal_lines.append("Tippe 'ende', um das Spiel zu beenden.")
     waiting_for_next_level = True
+    global in_riddle
     in_riddle = False
     level_start_time = None
 
@@ -375,9 +391,15 @@ def run_game():
                         if user_input.lower() == "start":
                             start_game()
                         elif in_riddle:
+                            answer_time = time.time() - riddle_start_time
                             if user_input.upper() == current_answer:
                                 terminal_lines.append("")
                                 terminal_lines.append("✅ [ERFOLG] Richtige Antwort! Rätsel gelöst.")
+                                # Bonus für schnelle Lösungen (Beispiel: Bonus, wenn in weniger als 10 Sekunden gelöst)
+                                if answer_time < 10:
+                                    bonus = 10 - int(answer_time)
+                                    player.points += bonus
+                                    terminal_lines.append(f"[BONUS] Schnelle Lösung! +{bonus} Punkte.")
                                 terminal_lines.append("")
                                 player.solved_riddles += 1
                                 in_riddle = False
@@ -402,3 +424,4 @@ def run_game():
     sys.exit()
 
 run_game()
+

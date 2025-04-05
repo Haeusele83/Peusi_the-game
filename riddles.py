@@ -1,7 +1,9 @@
 import random
+from typing import List, Tuple, Dict
 
 class Riddle:
-    all_tasks = {
+    # Alle Aufgaben, gruppiert nach Typ und Level
+    all_tasks: Dict[str, Dict[int, List[Dict[str, str]]]] = {
         "arithmetik": {
             1: [
                 {"question": "Berechne: 3 + 4 = ?", "answer": "7"},
@@ -108,20 +110,29 @@ class Riddle:
             ]
         }
     }
-    available_tasks = {}
+
+    # Wird beim Start eines Levels mit init_tasks_for_level befüllt
+    available_tasks: Dict[str, List[Dict[str, str]]] = {}
 
     @staticmethod
-    def init_tasks_for_level(level):
-        Riddle.available_tasks = {}
+    def init_tasks_for_level(level: int) -> None:
+        """
+        Initialisiert die verfügbaren Aufgaben für ein gegebenes Level.
+        Wenn das Level nicht 1, 2 oder 3 ist, wird Level 3 verwendet.
+        """
         level_key = level if level in [1, 2, 3] else 3
-        for typ in Riddle.all_tasks:
-            Riddle.available_tasks[typ] = list(Riddle.all_tasks[typ][level_key])
+        Riddle.available_tasks = {typ: list(tasks[level_key]) 
+                                  for typ, tasks in Riddle.all_tasks.items()}
 
     @staticmethod
-    def generate_riddle(level):
+    def generate_riddle(level: int) -> Tuple[List[str], str]:
+        """
+        Generiert ein zufälliges Rätsel für das angegebene Level.
+        Gibt eine Liste von Zeilen der Frage und die korrekte Antwort zurück.
+        """
         if not Riddle.available_tasks:
             Riddle.init_tasks_for_level(level)
-        available_types = [typ for typ in Riddle.available_tasks if Riddle.available_tasks[typ]]
+        available_types = [typ for typ, tasks in Riddle.available_tasks.items() if tasks]
         if not available_types:
             Riddle.init_tasks_for_level(level)
             available_types = list(Riddle.available_tasks.keys())

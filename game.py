@@ -3,6 +3,7 @@ import time
 import random
 from player import Player
 from riddles import Riddle
+from renderer import Renderer
 
 pygame.init()
 
@@ -16,15 +17,11 @@ BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 font = pygame.font.SysFont("Arial", 24)
 
-# Globale Variablen
+# Globale Variablen (Spielzustand)
 terminal_lines = []
 user_input = ""
 in_riddle = False
 current_answer = ""
-cursor_visible = True
-cursor_timer = pygame.time.get_ticks()
-cursor_blink_speed = 500
-
 time_limit = 300  # 5 Minuten pro Level
 level_start_time = None
 waiting_for_next_level = False
@@ -44,42 +41,14 @@ hacker_logs = [
 
 player = Player()
 
+# Erstelle eine Renderer-Instanz
+renderer = Renderer(screen, font, {"BLACK": BLACK, "GREEN": GREEN}, {"WIDTH": WIDTH, "HEIGHT": HEIGHT})
+
 def draw_terminal():
-    global cursor_visible, cursor_timer
-    screen.fill(BLACK)
-    line_height = 25
-    input_area_height = 40
-    terminal_area_height = HEIGHT - input_area_height - 10
-    max_lines = terminal_area_height // line_height
-
-    # Countdown-Anzeige, falls ein Level läuft
-    if level_start_time is not None:
-        elapsed = time.time() - level_start_time
-        remaining = max(0, int(time_limit - elapsed))
-        minutes = remaining // 60
-        seconds = remaining % 60
-        countdown_text = f"Restzeit: {minutes:02d}:{seconds:02d}"
-        countdown_surface = font.render(countdown_text, True, GREEN)
-        screen.blit(countdown_surface, (WIDTH - countdown_surface.get_width() - 10, 10))
-
-    displayed_lines = terminal_lines[-max_lines:]
-    y_offset = 10
-    for line in displayed_lines:
-        text_surface = font.render(line, True, GREEN)
-        screen.blit(text_surface, (10, y_offset))
-        y_offset += line_height
-
-    pygame.draw.line(screen, GREEN, (0, HEIGHT - input_area_height), (WIDTH, HEIGHT - input_area_height), 2)
-
-    # Blinkender Cursor
-    if pygame.time.get_ticks() - cursor_timer > cursor_blink_speed:
-        cursor_visible = not cursor_visible
-        cursor_timer = pygame.time.get_ticks()
-
-    input_text = "> " + user_input + ("_" if cursor_visible else "")
-    input_surface = font.render(input_text, True, GREEN)
-    screen.blit(input_surface, (10, HEIGHT - input_area_height + (input_area_height - line_height) // 2))
-    pygame.display.flip()
+    """
+    Wrapper-Funktion, die den Renderer aufruft.
+    """
+    renderer.draw_terminal(terminal_lines, user_input, level_start_time, time_limit)
 
 def start_game():
     global in_riddle, level_start_time, waiting_for_next_level, riddle_start_time
@@ -141,7 +110,7 @@ def run_game():
     # Hacker-Logs initial anzeigen
     for log in hacker_logs:
         terminal_lines.append(log)
-        draw_terminal()
+        renderer.draw_terminal(terminal_lines, user_input, level_start_time, time_limit)
         time.sleep(1)
 
     while running:
@@ -150,19 +119,19 @@ def run_game():
             if elapsed > time_limit:
                 terminal_lines.append("")
                 terminal_lines.append("⏰ [ZEIT ABGELAUFEN] Du hast mehr als 5 Minuten gebraucht. Level verloren!")
-                draw_terminal()
+                renderer.draw_terminal(terminal_lines, user_input, level_start_time, time_limit)
                 time.sleep(3)
                 running = False
                 exit_to_menu = True
                 continue
 
-        draw_terminal()
+        renderer.draw_terminal(terminal_lines, user_input, level_start_time, time_limit)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 exit_to_menu = True
             elif event.type == pygame.KEYDOWN:
-                # ESC: Spiel abbrechen und ins Menü zurückkehren
+                # ESC: Spiel abbrechen und ins Hauptmenü zurückkehren
                 if event.key == pygame.K_ESCAPE:
                     terminal_lines.append("")
                     terminal_lines.append("[ABBRUCH] Spiel wird abgebrochen und zum Menü zurückgekehrt.")
@@ -224,8 +193,7 @@ def run_game():
                 else:
                     user_input += event.unicode
         clock.tick(30)
-    # Pygame nicht beenden – so bleibt die Anwendung aktiv und kehrt ins Menü zurück.
+    # Wir beenden Pygame hier nicht vollständig, damit das Hauptmenü weiterläuft.
     if exit_to_menu:
         return 0
     return player.points
-

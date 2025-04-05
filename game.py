@@ -22,7 +22,8 @@ terminal_lines = []
 user_input = ""
 in_riddle = False
 current_answer = ""
-time_limit = 300  # 5 Minuten pro Level
+current_hint = ""   # Neuer Wert für den Hinweis
+time_limit = 300    # 5 Minuten pro Level
 level_start_time = None
 waiting_for_next_level = False
 riddle_start_time = None  # Zeitpunkt des aktuellen Rätsels
@@ -45,9 +46,7 @@ player = Player()
 renderer = Renderer(screen, font, {"BLACK": BLACK, "GREEN": GREEN}, {"WIDTH": WIDTH, "HEIGHT": HEIGHT})
 
 def draw_terminal():
-    """
-    Wrapper-Funktion, die den Renderer aufruft.
-    """
+    """Wrapper-Funktion, die den Renderer aufruft."""
     renderer.draw_terminal(terminal_lines, user_input, level_start_time, time_limit)
 
 def start_game():
@@ -64,13 +63,17 @@ def start_game():
     ask_next_riddle()
 
 def ask_next_riddle():
-    global in_riddle, waiting_for_next_level, riddle_start_time, current_answer
+    """
+    Holt das nächste Rätsel (Fragezeilen, Antwort und Hinweis) und zeigt es an.
+    """
+    global in_riddle, waiting_for_next_level, riddle_start_time, current_answer, current_hint
     riddle_start_time = time.time()  # Startzeit des aktuellen Rätsels
     if player.solved_riddles >= 6:
         show_level_summary()
     else:
         terminal_lines.append("")
-        riddle_lines, current_answer = Riddle.generate_riddle(player.level)
+        # Hole ein Triple: (Fragenzeilen, Antwort, Hinweis)
+        riddle_lines, current_answer, current_hint = Riddle.generate_riddle(player.level)
         terminal_lines.append("[RÄTSEL]")
         for line in riddle_lines:
             terminal_lines.append(line)
@@ -102,7 +105,7 @@ def show_level_summary():
     in_riddle = False
 
 def run_game():
-    global user_input, in_riddle, current_answer, waiting_for_next_level, level_start_time
+    global user_input, in_riddle, current_answer, waiting_for_next_level, level_start_time, current_hint
     running = True
     clock = pygame.time.Clock()
     exit_to_menu = False  # Kennzeichnet, ob das Spiel vorzeitig abgebrochen wurde
@@ -141,6 +144,17 @@ def run_game():
                 elif event.key == pygame.K_RETURN:
                     terminal_lines.append("")
                     terminal_lines.append("> " + user_input)
+                    # Zuerst prüfen: Gibt der Spieler "joker" ein, um den Hinweis zu erhalten?
+                    if user_input.lower().strip() == "joker":
+                        if current_hint:
+                            terminal_lines.append("")
+                            terminal_lines.append("[HINT] " + current_hint)
+                        else:
+                            terminal_lines.append("")
+                            terminal_lines.append("[HINT] Kein Hinweis verfügbar.")
+                        user_input = ""
+                        break  # Verlasse die aktuelle Event-Verarbeitung
+                        
                     if waiting_for_next_level:
                         if player.level < 5:
                             if user_input.lower() == "start":

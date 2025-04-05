@@ -28,23 +28,18 @@ class Riddle:
         },
         "binär": {
             1: [
-                {"question": "Was ist die Binärdarstellung von 2?", "answer": "10"},
-                {"question": "Was ist die Binärdarstellung von 3?", "answer": "11"},
-                {"question": "Was ist die Binärdarstellung von 4?", "answer": "100"},
-                {"question": "Was ist die Binärdarstellung von 5?", "answer": "101"},
-                {"question": "Was ist die Binärdarstellung von 6?", "answer": "110"}
+                {"question": "Was ist die Binärdarstellung von 1?", "answer": "1"},
+                {"question": "Was ist die Binärdarstellung von 2?", "answer": "10"}
             ],
             2: [
-                {"question": "Was ist die Binärdarstellung von 10?", "answer": "1010"},
-                {"question": "Was ist die Binärdarstellung von 12?", "answer": "1100"},
-                {"question": "Was ist die Binärdarstellung von 14?", "answer": "1110"},
-                {"question": "Was ist die Binärdarstellung von 15?", "answer": "1111"},
-                {"question": "Was ist die Binärdarstellung von 9?", "answer": "1001"}
+                {"question": "Was ist die Binärdarstellung von 3?", "answer": "11"},
+                {"question": "Was ist die Binärdarstellung von 4?", "answer": "100"},
+                {"question": "Was ist die Binärdarstellung von 5?", "answer": "101"}
             ],
             3: [
-                {"question": "Was ist die Binärdarstellung von 23?", "answer": "10111"},
-                {"question": "Was ist die Binärdarstellung von 27?", "answer": "11011"},
-                {"question": "Was ist die Binärdarstellung von 31?", "answer": "11111"}
+                {"question": "Was ist die Binärdarstellung von 6?", "answer": "110"},
+                {"question": "Was ist die Binärdarstellung von 7?", "answer": "111"},
+                {"question": "Was ist die Binärdarstellung von 8?", "answer": "1000"}
             ]
         },
         "wortspiel": {
@@ -98,15 +93,40 @@ class Riddle:
         },
         "rätsel": {
             1: [
-                {"question": "Was hat einen Kopf, aber keinen Körper?", "answer": "Münze"},
-                {"question": "Was wird nass, je mehr es trocknet?", "answer": "Handtuch"}
+                {
+                    "question": "Was hat einen Kopf und einen Schwanz, aber keinen Körper?",
+                    "answer": "Münze",
+                    "hint": "Oft in Spielen als Einsatz verwendet."
+                },
+                {
+                    "question": "Ich bin leicht wie eine Feder, aber niemand kann mich halten. Was bin ich?",
+                    "answer": "Atem",
+                    "hint": "Du brauchst mich zum Leben."
+                }
             ],
             2: [
-                {"question": "Ich bin immer hungrig, muss ständig essen, doch wenn ich trinke, sterbe ich. Was bin ich?", "answer": "Feuer"},
-                {"question": "Ich spreche ohne Mund und höre ohne Ohren. Was bin ich?", "answer": "Echo"}
+                {
+                    "question": "Ich gehe, ohne zu laufen, und habe ein Bett, schlafe aber nie. Was bin ich?",
+                    "answer": "Fluss",
+                    "hint": "Ich fließe unaufhörlich."
+                },
+                {
+                    "question": "Ich spreche ohne Mund und höre ohne Ohren. Was bin ich?",
+                    "answer": "Echo",
+                    "hint": "Höre genau hin."
+                }
             ],
             3: [
-                {"question": "Ich kann fliegen ohne Flügel und weinen ohne Augen. Was bin ich?", "answer": "Wolke"}
+                {
+                    "question": "Ich kann fliegen ohne Flügel und weinen ohne Augen. Was bin ich?",
+                    "answer": "Wolke",
+                    "hint": "Ich schwebe am Himmel und bringe oft Regen."
+                },
+                {
+                    "question": "Ich bin immer hungrig und muss ständig essen, doch wenn ich trinke, sterbe ich. Was bin ich?",
+                    "answer": "Feuer",
+                    "hint": "Ich verbrenne, aber bin kein Lebewesen."
+                }
             ]
         }
     }
@@ -121,14 +141,14 @@ class Riddle:
         Wenn das Level nicht 1, 2 oder 3 ist, wird Level 3 verwendet.
         """
         level_key = level if level in [1, 2, 3] else 3
-        Riddle.available_tasks = {typ: list(tasks[level_key]) 
+        Riddle.available_tasks = {typ: list(tasks[level_key])
                                   for typ, tasks in Riddle.all_tasks.items()}
 
     @staticmethod
-    def generate_riddle(level: int) -> Tuple[List[str], str]:
+    def generate_riddle(level: int) -> Tuple[List[str], str, str]:
         """
         Generiert ein zufälliges Rätsel für das angegebene Level.
-        Gibt eine Liste von Zeilen der Frage und die korrekte Antwort zurück.
+        Gibt eine Liste von Zeilen der Frage, die korrekte Antwort und einen Hinweis zurück.
         """
         if not Riddle.available_tasks:
             Riddle.init_tasks_for_level(level)
@@ -142,12 +162,14 @@ class Riddle:
         if typ in ["arithmetik", "binär", "zahlenfolge", "logik", "rätsel"]:
             answer = task["answer"].upper().strip()
             lines = task["question"].split("\n")
-            return lines, answer
+            hint = task.get("hint", "")
+            return lines, answer, hint
         elif typ == "wortspiel":
             word = task["word"]
             scrambled = "".join(random.sample(word, len(word)))
             answer = word.upper().strip()
             lines = ["Entschlüssele das Wort:", "", "  " + scrambled]
-            return lines, answer
+            hint = task.get("hint", "")
+            return lines, answer, hint
         else:
-            return ["Kein Rätsel verfügbar."], ""
+            return ["Kein Rätsel verfügbar."], "", ""

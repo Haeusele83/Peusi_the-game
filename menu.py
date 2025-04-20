@@ -1,4 +1,6 @@
 import pygame
+import config
+from sound_manager import SoundManager
 from highscores import load_highscores, reset_highscores
 from riddles import Riddle
 import random
@@ -48,8 +50,17 @@ class OptionsScreen:
     def __init__(self, screen):
         self.screen = screen
         self.font = pygame.font.SysFont("Arial", 28)
-        self.options = ["Sound: ON", "Difficulty: Normal", "Tastenbelegung", "Zurück"]
+        # Sound‑Option initial nach config.SOUND_ON setzen
+        sound_text = "Sound: ON" if config.SOUND_ON else "Sound: OFF"
+        self.options = [
+            sound_text,
+            "Difficulty: Normal",
+            "Tastenbelegung",
+            "Zurück"
+        ]
         self.selected = 0
+        # SoundManager für play/stop Music
+        self.sm = SoundManager()
 
     def update(self, events):
         for event in events:
@@ -59,13 +70,28 @@ class OptionsScreen:
                 elif event.key == pygame.K_DOWN:
                     self.selected = (self.selected + 1) % len(self.options)
                 elif event.key == pygame.K_RETURN:
-                    current_option = self.options[self.selected]
-                    if current_option == "Zurück":
+                    current = self.options[self.selected]
+                    # Zurück
+                    if current == "Zurück":
                         return "back"
-                    if current_option.startswith("Sound"):
-                        self.options[self.selected] = "Sound: OFF" if "ON" in current_option else "Sound: ON"
-                    elif current_option.startswith("Difficulty"):
-                        self.options[self.selected] = "Difficulty: Hard" if "Normal" in current_option else "Difficulty: Normal"
+                    # Sound‑Toggle
+                    if current.startswith("Sound"):
+                        config.SOUND_ON = not config.SOUND_ON
+                        if config.SOUND_ON:
+                            self.options[self.selected] = "Sound: ON"
+                            self.sm.play_music()
+                        else:
+                            self.options[self.selected] = "Sound: OFF"
+                            self.sm.stop_music()
+                            pygame.mixer.stop()
+                        return None
+                    # Difficulty‑Toggle
+                    if current.startswith("Difficulty"):
+                        self.options[self.selected] = (
+                            "Difficulty: Hard"
+                            if "Normal" in current
+                            else "Difficulty: Normal"
+                        )
         return None
 
     def draw(self):
@@ -74,8 +100,8 @@ class OptionsScreen:
         self.screen.blit(title_surface, (100, 50))
         for idx, option in enumerate(self.options):
             color = (0, 255, 0) if idx == self.selected else (255, 255, 255)
-            option_surface = self.font.render(option, True, color)
-            self.screen.blit(option_surface, (100, 150 + idx * 50))
+            opt_surf = self.font.render(option, True, color)
+            self.screen.blit(opt_surf, (100, 150 + idx * 50))
         pygame.display.flip()
 
 
@@ -85,7 +111,7 @@ class HighscoreScreen:
         self.font = pygame.font.SysFont("Arial", 28)
         self.title_font = pygame.font.SysFont("Arial", 36)
         self.highscores = load_highscores()
-    
+
     def update(self, events):
         for event in events:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_RETURN:
@@ -107,7 +133,7 @@ class HighscoreScreen:
             no_highscore = self.font.render("Noch keine Highscores vorhanden.", True, (255, 255, 255))
             self.screen.blit(no_highscore, (100, 150))
         back_text = self.font.render("Drücke Enter, um zurückzukehren.", True, (0, 255, 0))
-        self.screen.blit(back_text, (100, y_offset+20))
+        self.screen.blit(back_text, (100, y_offset + 20))
         pygame.display.flip()
 
 
@@ -155,7 +181,6 @@ class TestMenu:
     def __init__(self, screen):
         self.screen = screen
         self.font = pygame.font.SysFont("Arial", 36)
-        # Testoptionen: Highscore, Rätseltypen Übersicht, Verbindung und DB zurücksetzen
         self.options = ["Test Highscore", "Test Rätseltypen", "Test Verbindung", "DB zurücksetzen", "Zurück"]
         self.selected = 0
 
@@ -241,18 +266,17 @@ class TestConnectionScreen:
     def test_connections(self):
         try:
             import player
-            p = player.Player()
+            _ = player.Player()
             self.messages.append("Player Modul: OK")
         except Exception as e:
             self.messages.append("Player Modul: Fehler " + str(e))
         try:
-            from riddles import Riddle
             Riddle.init_tasks_for_level(1)
             self.messages.append("Riddles Modul: OK")
         except Exception as e:
             self.messages.append("Riddles Modul: Fehler " + str(e))
         try:
-            hs = load_highscores()
+            _ = load_highscores()
             self.messages.append("Highscore DB: OK")
         except Exception as e:
             self.messages.append("Highscore DB: Fehler " + str(e))
@@ -307,5 +331,6 @@ class TestResetDBScreen:
         back_surface = self.font.render("Drücke Enter, um zurückzukehren.", True, (0, 255, 0))
         self.screen.blit(back_surface, (100, 250))
         pygame.display.flip()
+
 
 

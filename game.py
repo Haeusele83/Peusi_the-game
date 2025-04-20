@@ -34,7 +34,7 @@ hacker_logs = [
     "[WARNUNG] Firewall erkannt! Starte Protokoll...",
     "[ERFOLG] Zugriff gewährt. Willkommen, Agent.",
     "[MISSION INFO] Jede Mission ist zeitkritisch! Du hast pro Level maximal 5 Minuten.",
-    "[MISSION TASK] Aufgaben: Arithmetik, Binär, Wortspiel, Logik, Zahlenfolge, Rätsel.",
+    "[MISSION TASK] Aufgaben: Arithmetik, Binär, Wortspiel, Zahlenfolge, Geografie, Allgemeinwissen.",
     "[READY] Dein Verstand ist gefragt. Bist du bereit, in die Tiefen des CyberHeists einzutauchen?",
     "[EINGABE] Tippe 'start', um das Spiel zu beginnen.",
     ""
@@ -43,7 +43,12 @@ hacker_logs = [
 player = Player()
 
 # Erstelle eine Renderer-Instanz
-renderer = Renderer(screen, font, {"BLACK": BLACK, "GREEN": GREEN}, {"WIDTH": WIDTH, "HEIGHT": HEIGHT})
+renderer = Renderer(
+    screen,
+    font,
+    {"BLACK": BLACK, "GREEN": GREEN},
+    {"WIDTH": WIDTH, "HEIGHT": HEIGHT}
+)
 
 def draw_terminal():
     """Wrapper-Funktion, die den Renderer aufruft."""
@@ -67,12 +72,11 @@ def ask_next_riddle():
     Holt das nächste Rätsel (Fragezeilen, Antwort und Hinweis) und zeigt es an.
     """
     global in_riddle, waiting_for_next_level, riddle_start_time, current_answer, current_hint
-    riddle_start_time = time.time()  # Startzeit des aktuellen Rätsels
+    riddle_start_time = time.time()
     if player.solved_riddles >= 6:
         show_level_summary()
     else:
         terminal_lines.append("")
-        # Hole ein Triple: (Fragenzeilen, Antwort, Hinweis)
         riddle_lines, current_answer, current_hint = Riddle.generate_riddle(player.level)
         terminal_lines.append("[RÄTSEL]")
         for line in riddle_lines:
@@ -96,7 +100,7 @@ def show_level_summary():
         terminal_lines.append(f"Möchtest du mit Level {player.level + 1} starten? (Tippe 'start')")
     else:
         terminal_lines.append("*****************************")
-        terminal_lines.append(f"[MISSION ABGESCHLOSSEN] Du hast alle Level erfolgreich abgeschlossen!")
+        terminal_lines.append("[MISSION ABGESCHLOSSEN] Du hast alle Level erfolgreich abgeschlossen!")
         terminal_lines.append(f"Gesamte Punkte: {player.points}")
         terminal_lines.append("*****************************")
         terminal_lines.append("")
@@ -108,7 +112,7 @@ def run_game():
     global user_input, in_riddle, current_answer, waiting_for_next_level, level_start_time, current_hint
     running = True
     clock = pygame.time.Clock()
-    exit_to_menu = False  # Kennzeichnet, ob das Spiel vorzeitig abgebrochen wurde
+    exit_to_menu = False
 
     # Hacker-Logs initial anzeigen
     for log in hacker_logs:
@@ -117,6 +121,7 @@ def run_game():
         time.sleep(1)
 
     while running:
+        # Zeitüberschreitung prüfen
         if level_start_time is not None:
             elapsed = time.time() - level_start_time
             if elapsed > time_limit:
@@ -134,7 +139,7 @@ def run_game():
                 running = False
                 exit_to_menu = True
             elif event.type == pygame.KEYDOWN:
-                # ESC: Spiel abbrechen und ins Hauptmenü zurückkehren
+                # ESC: Spiel abbrechen
                 if event.key == pygame.K_ESCAPE:
                     terminal_lines.append("")
                     terminal_lines.append("[ABBRUCH] Spiel wird abgebrochen und zum Menü zurückgekehrt.")
@@ -144,8 +149,10 @@ def run_game():
                 elif event.key == pygame.K_RETURN:
                     terminal_lines.append("")
                     terminal_lines.append("> " + user_input)
-                    # Zuerst prüfen: Gibt der Spieler "joker" ein, um den Hinweis zu erhalten?
-                    if user_input.lower().strip() == "joker":
+                    cmd = user_input.lower().strip()
+
+                    # Joker-Hint
+                    if cmd == "joker":
                         if current_hint:
                             terminal_lines.append("")
                             terminal_lines.append("[HINT] " + current_hint)
@@ -153,30 +160,37 @@ def run_game():
                             terminal_lines.append("")
                             terminal_lines.append("[HINT] Kein Hinweis verfügbar.")
                         user_input = ""
-                        break  # Verlasse die aktuelle Event-Verarbeitung
-                        
-                    if waiting_for_next_level:
+                        break
+
+                    # Immer beenden möglich
+                    elif cmd == "ende":
+                        terminal_lines.append("")
+                        terminal_lines.append("[ENDE] Das Spiel wird beendet.")
+                        running = False
+                        exit_to_menu = True
+                        user_input = ""
+                        break
+
+                    # Level‑Wechsel steuern
+                    elif waiting_for_next_level:
                         if player.level < 5:
-                            if user_input.lower() == "start":
+                            if cmd == "start":
                                 player.level_up()
                                 start_game()
-                            elif user_input.lower() == "ende":
-                                terminal_lines.append("")
-                                terminal_lines.append("[ENDE] Das Spiel wird beendet.")
-                                running = False
                             else:
                                 terminal_lines.append("")
                                 terminal_lines.append("[FEHLER] Unbekannter Befehl. Tippe 'start' oder 'ende'.")
                         else:
-                            if user_input.lower() == "ende":
+                            if cmd == "ende":
                                 terminal_lines.append("")
                                 terminal_lines.append("[ENDE] Das Spiel wird beendet.")
                                 running = False
                             else:
                                 terminal_lines.append("")
                                 terminal_lines.append("[FEHLER] Unbekannter Befehl. Tippe 'ende', um das Spiel zu beenden.")
+                    # Normales Spiel-Handling
                     else:
-                        if user_input.lower() == "start":
+                        if cmd == "start":
                             start_game()
                         elif in_riddle:
                             answer_time = time.time() - riddle_start_time
@@ -194,10 +208,6 @@ def run_game():
                             else:
                                 terminal_lines.append("")
                                 terminal_lines.append("❌ [FEHLER] Falsche Antwort. Versuch es erneut!")
-                        elif user_input.lower() == "ende":
-                            terminal_lines.append("")
-                            terminal_lines.append("[ENDE] Das Spiel wird beendet.")
-                            running = False
                         else:
                             terminal_lines.append("")
                             terminal_lines.append("[FEHLER] Unbekannter Befehl. Tippe 'start'.")
@@ -207,7 +217,6 @@ def run_game():
                 else:
                     user_input += event.unicode
         clock.tick(30)
-    # Wir beenden Pygame hier nicht vollständig, damit das Hauptmenü weiterläuft.
-    if exit_to_menu:
-        return 0
+
+    # Gibt immer die bis dahin erspielten Punkte zurück
     return player.points

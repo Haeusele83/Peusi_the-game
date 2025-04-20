@@ -63,20 +63,6 @@ class Riddle:
                 {"word": "CYBERSECURITY"}
             ]
         },
-        "logik": {
-            1: [
-                {"question": "Welche Aussage ist korrekt?\n  A) Wasser ist trocken\n  B) Feuer ist heiß\n  C) Schnee ist schwarz", "answer": "B"},
-                {"question": "Welche Aussage ist wahr?\n  A) 2 + 2 = 5\n  B) 2 + 2 = 4\n  C) 2 + 2 = 3", "answer": "B"}
-            ],
-            2: [
-                {"question": "Welche Aussage ist richtig?\n  A) Die Erde ist rund\n  B) Die Erde ist flach\n  C) Die Erde ist eckig", "answer": "A"},
-                {"question": "Welche Aussage ist korrekt?\n  A) Feuer ist kalt\n  B) Eis ist heiß\n  C) Wasser ist flüssig", "answer": "C"}
-            ],
-            3: [
-                {"question": "Welche Aussage ist korrekt?\n  A) Alle Vögel können fliegen\n  B) Pinguine können nicht fliegen\n  C) Fische können fliegen", "answer": "B"},
-                {"question": "Welche Aussage ist wahr?\n  A) Bäume produzieren Sauerstoff\n  B) Autos produzieren Sauerstoff\n  C) Steine produzieren Sauerstoff", "answer": "A"}
-            ]
-        },
         "zahlenfolge": {
             1: [
                 {"question": "Welche Zahl folgt in der Reihe: 1, 2, 3, 4, ?", "answer": "5"},
@@ -91,42 +77,32 @@ class Riddle:
                 {"question": "Welche Zahl folgt in der Reihe: 2, 3, 5, 8, ?", "answer": "13"}
             ]
         },
-        "rätsel": {
+        "geografie": {
             1: [
-                {
-                    "question": "Was hat einen Kopf und einen Schwanz, aber keinen Körper?",
-                    "answer": "Münze",
-                    "hint": "Oft in Spielen als Einsatz verwendet."
-                },
-                {
-                    "question": "Ich bin leicht wie eine Feder, aber niemand kann mich halten. Was bin ich?",
-                    "answer": "Atem",
-                    "hint": "Du brauchst mich zum Leben."
-                }
+                {"question": "Was ist die Hauptstadt von Frankreich?", "answer": "PARIS", "hint": "Eiffelturm und Croissants."},
+                {"question": "Welche Hauptstadt hat Deutschland?", "answer": "BERLIN", "hint": "Brandenburger Tor."}
             ],
             2: [
-                {
-                    "question": "Ich gehe, ohne zu laufen, und habe ein Bett, schlafe aber nie. Was bin ich?",
-                    "answer": "Fluss",
-                    "hint": "Ich fließe unaufhörlich."
-                },
-                {
-                    "question": "Ich spreche ohne Mund und höre ohne Ohren. Was bin ich?",
-                    "answer": "Echo",
-                    "hint": "Höre genau hin."
-                }
+                {"question": "Was ist die Hauptstadt von Australien?", "answer": "CANBERRA", "hint": "Nicht Sydney."},
+                {"question": "Welche Stadt ist Hauptstadt von Japan?", "answer": "TOKYO", "hint": "Metropole mit Shibuya-Kreuzung."}
             ],
             3: [
-                {
-                    "question": "Ich kann fliegen ohne Flügel und weinen ohne Augen. Was bin ich?",
-                    "answer": "Wolke",
-                    "hint": "Ich schwebe am Himmel und bringe oft Regen."
-                },
-                {
-                    "question": "Ich bin immer hungrig und muss ständig essen, doch wenn ich trinke, sterbe ich. Was bin ich?",
-                    "answer": "Feuer",
-                    "hint": "Ich verbrenne, aber bin kein Lebewesen."
-                }
+                {"question": "Wie heisst die Hauptstadt von Kasachstan seit 1997?", "answer": "ASTANA", "hint": "Ehemals Nursultan."},
+                {"question": "Welche Stadt liegt bei 51° N, 0° E?", "answer": "LONDON", "hint": "Big Ben."}
+            ]
+        },
+        "allgemeinwissen": {
+            1: [
+                {"question": "Was ist die chemische Formel von Wasser?\n  A) H₂O   B) CO₂   C) O₂", "answer": "A", "hint": "Man kennt es als Lebenselixier."},
+                {"question": "Wie viele Kontinente gibt es?", "answer": "7", "hint": "Afrika, Europa, Asien…"}
+            ],
+            2: [
+                {"question": "Wer malte die Mona Lisa?\n  A) Van Gogh   B) Da Vinci   C) Picasso", "answer": "B", "hint": "Leonardo…"},
+                {"question": "In welchem Jahr begann der Zweite Weltkrieg?\n  A) 1935   B) 1939   C) 1941", "answer": "B", "hint": "1. September 1939."}
+            ],
+            3: [
+                {"question": "Wer war die erste Bundesrätin der Schweiz?", "answer": "ELISABETH KOPP", "hint": "Name beginnt mit E."},
+                {"question": "Was misst der pH‑Wert?", "answer": "SÄURE-BASE-VERHÄLTNIS", "hint": "Skala von 0 bis 14."}
             ]
         }
     }
@@ -159,9 +135,10 @@ class Riddle:
         typ = random.choice(available_types)
         task = random.choice(Riddle.available_tasks[typ])
         Riddle.available_tasks[typ].remove(task)
-        if typ in ["arithmetik", "binär", "zahlenfolge", "logik", "rätsel"]:
-            answer = task["answer"].upper().strip()
-            lines = task["question"].split("\n")
+        # Für einfache Frage-Antwort-Typen inklusive neu hinzugefügter Kategorien
+        if typ in ["arithmetik", "binär", "zahlenfolge", "geografie", "allgemeinwissen"]:
+            answer = task.get("answer", "").upper().strip()
+            lines = task.get("question", "").split("\n")
             hint = task.get("hint", "")
             return lines, answer, hint
         elif typ == "wortspiel":

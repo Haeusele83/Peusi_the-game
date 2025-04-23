@@ -33,11 +33,9 @@ riddle_start_time = None
 hacker_logs = [
     "[BOOT] System wird gestartet...",
     "[INFO] Verbindung zum Server wird hergestellt...",
-    "[ERFOLG] Zugriff gewährt. Willkommen, Agent.",
-    "[MISSION INFO] Jede Mission ist zeitkritisch! Du hast pro Level maximal 5 Minuten.",
-    "[MISSION TASK] Aufgaben: Arithmetik, Binär, Wortspiel, Zahlenfolge, Geografie, Allgemeinwissen.",
-    "[READY] Dein Verstand ist gefragt. Bist du bereit, in die Tiefen des CyberHeists einzutauchen?",
-    "[EINGABE] Tippe 'start', um das Spiel zu beginnen.",
+    "[ERFOLG] Zugriff gewährt. Willkommen.",
+    "[MISSION INFO] Du hast pro Level maximal 5 Minuten.",
+    "[EINGABE] Dein Verstand ist gefragt. Tippe 'start', um das Spiel zu beginnen.",
     ""
 ]
 

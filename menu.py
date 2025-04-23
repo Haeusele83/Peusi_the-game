@@ -55,7 +55,6 @@ class OptionsScreen:
         self.options = [
             sound_text,
             "Difficulty: Normal",
-            "Tastenbelegung",
             "Zurück"
         ]
         self.selected = 0

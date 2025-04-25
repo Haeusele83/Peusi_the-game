@@ -133,10 +133,6 @@ class Riddle:
 
     @staticmethod
     def generate_riddle(level: int) -> Tuple[List[str], str, str]:
-        """
-        Generiert ein zufälliges Rätsel für das angegebene Level.
-        Gibt eine Liste von Zeilen der Frage, die korrekte Antwort und einen Hinweis zurück.
-        """
         if not Riddle.available_tasks:
             Riddle.init_tasks_for_level(level)
         available_types = [typ for typ, tasks in Riddle.available_tasks.items() if tasks]

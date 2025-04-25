@@ -35,7 +35,7 @@ hacker_logs = [
     "[INFO] Verbindung zum Server wird hergestellt...",
     "[ERFOLG] Zugriff gewährt. Willkommen.",
     "[MISSION INFO] Du hast pro Level maximal 5 Minuten.",
-    "[EINGABE] Dein Verstand ist gefragt. Tippe 'start', um das Spiel zu beginnen.",
+    "[EINGABE] Tippe 'start', um das Spiel zu beginnen.",
     ""
 ]
 

@@ -17,50 +17,61 @@ class Riddle:
                 {"question": "Berechne: 20 - 8 = ?", "answer": "12"},
                 {"question": "Berechne: 7 * 3 = ?", "answer": "21"},
                 {"question": "Berechne: 18 / 2 = ?", "answer": "9"},
-                {"question": "Berechne: 14 + 6 = ?", "answer": "20"}
+                {"question": "Berechne: 14 + 6 = ?", "answer": "20"}, 
+                {"question": "Berechne: 14 / (1 + 1) = ?", "answer": "7"}
             ],
             3: [
                 {"question": "Berechne: 15 * 4 = ?", "answer": "60"},
                 {"question": "Berechne: 45 / 5 = ?", "answer": "9"},
                 {"question": "Berechne: 23 + 37 = ?", "answer": "60"},
-                {"question": "Berechne: 50 - 17 = ?", "answer": "33"}
+                {"question": "Berechne: 50 - 17 = ?", "answer": "33"},
+                {"question": "Berechne: (12 / 3) + (5 * 2) = ?", "answer": "14"},
+                {"question": "Berechne: 3² + 4² = ?", "answer": "25"}
             ]
         },
         "binär": {
             1: [
                 {"question": "Was ist die Binärdarstellung von 1?", "answer": "1"},
-                {"question": "Was ist die Binärdarstellung von 2?", "answer": "10"}
+                {"question": "Was ist die Binärdarstellung von 2?", "answer": "10"}, 
+                {"question": "Was ist die Binärdarstellung von 9?", "answer": "1001"},
+                {"question": "Was ist die Binärdarstellung von 10?", "answer": "1010"}
             ],
             2: [
                 {"question": "Was ist die Binärdarstellung von 3?", "answer": "11"},
                 {"question": "Was ist die Binärdarstellung von 4?", "answer": "100"},
-                {"question": "Was ist die Binärdarstellung von 5?", "answer": "101"}
+                {"question": "Was ist die Binärdarstellung von 5?", "answer": "101"},
+                {"question": "Was ist die Binärdarstellung von 11?", "answer": "1011"},
+                {"question": "Was ist die Binärdarstellung von 13?", "answer": "1101"}
             ],
             3: [
                 {"question": "Was ist die Binärdarstellung von 6?", "answer": "110"},
                 {"question": "Was ist die Binärdarstellung von 7?", "answer": "111"},
-                {"question": "Was ist die Binärdarstellung von 8?", "answer": "1000"}
+                {"question": "Was ist die Binärdarstellung von 8?", "answer": "1000"},
+                {"question": "Was ist die Binärdarstellung von 15?", "answer": "1111"},
+                {"question": "Was ist die Binärdarstellung von 18?", "answer": "10010"}
             ]
         },
         "wortspiel": {
             1: [
                 {"word": "CODE"},
-                {"word": "HACK"},
-                {"word": "NETZ"},
+                {"word": "MAUS"},
+                {"word": "HAUS"},
                 {"word": "LOGIK"},
                 {"word": "SPIEL"}
             ],
             2: [
                 {"word": "PROGRAMM"},
                 {"word": "TECHNIK"},
-                {"word": "ALGORITHMUS"},
-                {"word": "VIRUS"},
+                {"word": "ZAHNRAD"},
+                {"word": "SCHMETTERLING"},
                 {"word": "SYSTEM"}
             ],
             3: [
                 {"word": "INNOVATION"},
                 {"word": "DIGITALISIERUNG"},
-                {"word": "CYBERSECURITY"}
+                {"word": "CYBERSECURITY"},
+                {"word": "ENTWICKLUNG"},
+                {"word": "KOMMUNIKATION"}
             ]
         },
         "zahlenfolge": {

@@ -1,18 +1,3 @@
-# CyberHeist - Hacker Terminal
-
-Cyberheist ist ein kleines Python-Projekt, das einen nostalgischen Hacker-Terminal-Effekt simuliert. Mithilfe von Pygame werden System-Logs und Benutzereingaben in einem klassischen Terminal-Stil angezeigt.
-
-## Funktionen
-
-- **System-Logs:**  
-  Das Programm zeigt nacheinander typische Hacker-Log-Meldungen an, wie Systemstart, Verbindungsaufbau und Warnungen.
-
-- **Interaktive Eingabe:**  
-  Benutzer können Befehle eingeben, die simuliert ausgeführt werden – so entsteht der Eindruck eines echten Terminals.
-
-- **Einfache Erweiterbarkeit:**  
-  Der Code ist so strukturiert, dass er leicht angepasst und erweitert werden kann.
-
 ## Voraussetzungen
 
 - **Python 3.x**

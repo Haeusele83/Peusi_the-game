@@ -1,9 +1,9 @@
-# FEUSI - The Game
+# PEUSI - The Game
 
 ## Projektbeschreibung
 
 ### Hintergrund & Ziel
-Das Projekt **FEUSI - The Game** ist ein interaktives Spiel. Sie betreten ein fiktives Terminal, in dem sie verschiedenste Rätsel lösen müssen – von Arithmetik und Binäraufgaben bis hin zu Wortspielen, Logikrätseln und Allgemeinwissen. Ziel des Projekts ist es, durch ein spannendes, temporeiches Spielerlebnis das logische Denken und die Rechenfertigkeiten zu fordern.
+Das Projekt **PEUSI - The Game** ist ein interaktives Spiel. Sie betreten ein fiktives Terminal, in dem sie verschiedenste Rätsel lösen müssen – von Arithmetik und Binäraufgaben bis hin zu Wortspielen, Logikrätseln und Allgemeinwissen. Ziel des Projekts ist es, durch ein spannendes, temporeiches Spielerlebnis das logische Denken und die Rechenfertigkeiten zu fordern.
 
 ### Umsetzung
 Die Umsetzung erfolgt in **Python** unter Einsatz der Bibliothek **Pygame**. Es wurde ein modularer Ansatz gewählt, bei dem verschiedene Rätseltypen in unterschiedlichen Schwierigkeitsgraden (Levels) angeboten werden. Die Architektur des Programms gliedert sich in Klassen, welche die Spiellogik, das Level-Management und die Darstellung im typischen Terminal-Stil organisieren. Ein zentrales Element ist das zeitbasierte Levelsystem, bei dem jedes Level ein Zeitlimit von 5 Minuten hat, was zusätzlich die Spannung und den Spielspaß erhöht.

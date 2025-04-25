@@ -12,7 +12,7 @@ pygame.init()
 # Fenster‑Setup
 WIDTH, HEIGHT = 1000, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("CyberHeist - Terminal‑Abenteuer")
+pygame.display.set_caption("Peusi - The Game")
 
 # Farben und Schrift
 BLACK = (0, 0, 0)
@@ -33,8 +33,8 @@ riddle_start_time = None
 hacker_logs = [
     "[BOOT] System wird gestartet...",
     "[INFO] Verbindung zum Server wird hergestellt...",
-    "[ERFOLG] Zugriff gewährt. Willkommen.",
-    "[MISSION INFO] Du hast pro Level maximal 5 Minuten.",
+    "[ERFOLG] Zugriff gewährt. Willkommen bei Peusi-The Game.",
+    "[MISSION INFO] Du hast für alle Level maximal 5 Minuten.",
     "[EINGABE] Tippe 'start', um das Spiel zu beginnen.",
     ""
 ]

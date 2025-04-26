@@ -37,7 +37,7 @@ class MainMenu:
 
     def draw(self):
         self.screen.fill((0, 0, 0))
-        title_surface = self.font.render("CyberHeist", True, (0, 255, 0))
+        title_surface = self.font.render("Peusi-The Game", True, (0, 255, 0))
         self.screen.blit(title_surface, (100, 50))
         for idx, option in enumerate(self.options):
             color = (0, 255, 0) if idx == self.selected else (255, 255, 255)

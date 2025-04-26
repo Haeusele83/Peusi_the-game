@@ -6,7 +6,7 @@ pygame.init()
 
 WIDTH, HEIGHT = 1000, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("CyberHeist - Hacker Terminal")
+pygame.display.set_caption("Peusi - The Game")
 
 clock = pygame.time.Clock()
 current_screen = "menu"  # Zustände: "menu", "options", "game", "highscore_entry", "highscore", "test", "test_riddle_summary", "test_connection", "test_reset_db"

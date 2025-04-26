@@ -34,6 +34,7 @@ hacker_logs = [
     "[BOOT] System wird gestartet...",
     "[INFO] Verbindung zum Server wird hergestellt...",
     "[ERFOLG] Zugriff gewährt. Willkommen bei Peusi-The Game.",
+    "[ERFOLG] Fragen zusammengestellt. Spiel bereit",
     "[MISSION INFO] Du hast für alle Level maximal 5 Minuten.",
     "[EINGABE] Tippe 'start', um das Spiel zu beginnen.",
     ""

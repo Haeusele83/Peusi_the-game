@@ -11,12 +11,12 @@
 1. **Repository klonen oder herunterladen:**  
    Öffne dein Terminal und führe folgenden Befehl aus:
    ```bash
-   git clone https://github.com/haeusele83/cyberheist_the-game.git
+   git clone https://github.com/haeusele83/peusi_the-game.git
 
 2. **In das Projektverzeichnis wechseln:**  
    Navigiere in das geklonte Repository:
    ```bash
-   cd cyberheist_the-game
+   cd peusi_the-game
 
 3. **Abhängigkeiten installieren:**  
    Stelle sicher, dass Python 3.x installiert ist. Installiere dann die benötigte Bibliothek Pygame:
